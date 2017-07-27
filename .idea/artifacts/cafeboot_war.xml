@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="war" name="cafeboot:war">
-    <output-path>$PROJECT_DIR$/target</output-path>
-    <root id="archive" name="cafe-boot-1.0-SNAPSHOT.war">
-      <element id="artifact" artifact-name="cafeboot:war exploded" />
-    </root>
-  </artifact>
-</component>
