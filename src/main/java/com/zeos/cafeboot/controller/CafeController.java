@@ -50,36 +50,60 @@ public class CafeController {
         return tableRepository.findOne(id);
     }
 
+    @RequestMapping("/dishType/{id}")
+    public DishTypeEntity getDishType(@PathVariable(name = "id") Integer id){
+        return dishTypeRepository.findOne(id);
+    }
+
+    @RequestMapping("/dish/{id}")
+    public DishEntity getDish(@PathVariable(name = "id") Integer id){
+        return dishRepository.findOne(id);
+    }
+
     @RequestMapping("/occupyArea/{id}")
-    public int occupyArea(@PathVariable(name = "id") Integer id){
-        if (areaRepository.findOne(id) != null && !areaRepository.findOne(id).getOccupied()){
-            List<TableEntity> tables = tableRepository.findByArea(areaRepository.findOne(id));
+    public AreaEntity occupyArea(@PathVariable(name = "id") Integer id){
+        AreaEntity areaEntity = areaRepository.findOne(id);
+        if (areaEntity != null && !areaEntity.getOccupied()){
+            List<TableEntity> tables = tableRepository.findByArea(areaEntity);
             for (TableEntity tableEntity : tables){
                 if (tableEntity.getOccupied()){
-                    return 0;
+                    return areaEntity;
                 }
             }
             for (TableEntity tableEntity : tables){
                 tableEntity.setOccupied(true);
                 tableRepository.save(tableEntity);
             }
-            AreaEntity areaEntity = areaRepository.findOne(id);
             areaEntity.setOccupied(true);
             areaRepository.save(areaEntity);
-            return 1;
         }
-        return 0;
+        return areaEntity;
+    }
+
+    @RequestMapping("/releaseArea/{id}")
+    public AreaEntity releaseArea(@PathVariable(name = "id") Integer id){
+        AreaEntity areaEntity = areaRepository.findOne(id);
+        if (areaEntity != null && areaEntity.getOccupied()){
+            List<TableEntity> tables = tableRepository.findByArea(areaEntity);
+            for (TableEntity tableEntity : tables){
+                if (tableEntity.getOccupied()){
+                    return areaEntity;
+                }
+            }
+            areaEntity.setOccupied(false);
+            areaRepository.save(areaEntity);
+        }
+        return areaEntity;
     }
 
     @RequestMapping("/occupyTable/{id}")
-    public int occupyTable(@PathVariable(name = "id") Integer id){
+    public TableEntity occupyTable(@PathVariable(name = "id") Integer id){
         TableEntity tableEntity = tableRepository.findOne(id);
         if (tableEntity != null && !tableEntity.getOccupied()){
             tableEntity.setOccupied(true);
             tableRepository.save(tableEntity);
-            return 1;
         }
-        return 0;
+        return tableEntity;
     }
 
     @RequestMapping("/listOrders")
@@ -89,7 +113,22 @@ public class CafeController {
 
     @RequestMapping("/listTableOrders/{id}")
     public List<OrderEntity> listTableOrders(@PathVariable(name = "id") Integer id){
-        return orderRepository.findByTableAndOpen(tableRepository.findOne(id), true);
+        return orderRepository.findByTableAndEndDateIsNull(tableRepository.findOne(id));
+    }
+
+    @RequestMapping("/order/{id}")
+    public OrderEntity getOrder(@PathVariable(name = "id") Integer id){
+        return orderRepository.findOne(id);
+    }
+
+    @RequestMapping("/releaseTable/{id}")
+    public TableEntity releaseTable(@PathVariable(name = "id") Integer id){
+        TableEntity tableEntity = tableRepository.findOne(id);
+        if (tableEntity != null && tableEntity.getOccupied() && orderRepository.findByTableAndEndDateIsNull(tableRepository.findOne(id)).size() <= 0){
+            tableEntity.setOccupied(false);
+            tableRepository.save(tableEntity);
+        }
+        return tableEntity;
     }
 
     @RequestMapping("/listOrderItems/{id}")
@@ -126,8 +165,8 @@ public class CafeController {
 
     @RequestMapping("/addOrderItem/{id}")
     public OrderItemEntity addOrderItem(@PathVariable(name = "id") Integer id, @RequestParam(name = "dishId") Integer dishId){
-        if (orderRepository.findOne(id) != null && orderRepository.findOne(id).getOpen()){
-            OrderEntity orderEntity = orderRepository.findOne(id);
+        OrderEntity orderEntity = orderRepository.findOne(id);
+        if (orderEntity != null && orderEntity.getOpen()){
             if (dishRepository.findOne(dishId) != null){
                 DishEntity dishEntity = dishRepository.findOne(dishId);
                 OrderItemEntity orderItemEntity = orderItemRepository.findByOrderAndDish(orderEntity, dishEntity);
@@ -157,25 +196,61 @@ public class CafeController {
         OrderItemEntity orderItemEntity = orderItemRepository.findOne(id);
         if (orderItemEntity != null){
             DishEntity dishEntity = orderItemEntity.getDish();
-            if (dishEntity != null && dishEntity.getQuantity() >= 1){
+            if (dishEntity != null && "plus".equals(sign) && dishEntity.getQuantity() >= 1){
                 dishEntity.setQuantity(dishEntity.getQuantity() - 1);
                 orderItemEntity.setQuantity(orderItemEntity.getQuantity() + 1);
                 dishRepository.save(dishEntity);
                 orderItemRepository.save(orderItemEntity);
-                return orderItemEntity;
+            } else if (dishEntity != null && !"plus".equals(sign) && orderItemEntity.getQuantity() >= 1){
+                dishEntity.setQuantity(dishEntity.getQuantity() + 1);
+                orderItemEntity.setQuantity(orderItemEntity.getQuantity() - 1);
+                dishRepository.save(dishEntity);
+                if (orderItemEntity.getQuantity() <= 0){
+                    orderItemRepository.delete(orderItemEntity);
+                    return null;
+                } else {
+                    orderItemRepository.save(orderItemEntity);
+                }
             }
-            return null;
+        }
+        return orderItemEntity;
+    }
+
+    @RequestMapping("/checkOrder/{id}")
+    public List<OrderItemEntity> checkOrder(@PathVariable(name = "id") Integer id){
+        OrderEntity orderEntity = orderRepository.findOne(id);
+        if (orderEntity != null && orderEntity.getOpen()){
+            orderEntity.setOpen(false);
+            orderRepository.save(orderEntity);
+            return orderItemRepository.findByOrder(orderEntity);
         }
         return null;
     }
 
     @RequestMapping("/closeOrder/{id}")
-    public List<OrderItemEntity> closeOrder(@PathVariable(name = "id") Integer id){
+    public OrderEntity closeOrder(@PathVariable(name = "id") Integer id){
         OrderEntity orderEntity = orderRepository.findOne(id);
-        if (orderEntity != null && orderEntity.getOpen()){
-            orderEntity.setOpen(false);
-            return orderItemRepository.findByOrder(orderEntity);
+        if (orderEntity != null && !orderEntity.getOpen() && orderEntity.getEndDate() == null){
+            orderEntity.setEndDate(new Date());
+            orderRepository.save(orderEntity);
+            return orderEntity;
         }
         return null;
+    }
+
+    @RequestMapping("/cancelOrder/{id}")
+    public OrderEntity cancelOrder(@PathVariable(name = "id") Integer id){
+        OrderEntity orderEntity = orderRepository.findOne(id);
+        if (orderEntity != null){
+            List<OrderItemEntity> list = orderItemRepository.findByOrder(orderEntity);
+            for (OrderItemEntity orderItemEntity : list){
+                DishEntity dishEntity = orderItemEntity.getDish();
+                dishEntity.setQuantity(dishEntity.getQuantity() + orderItemEntity.getQuantity());
+                orderItemRepository.delete(orderItemEntity);
+                dishRepository.save(dishEntity);
+            }
+            orderRepository.delete(orderEntity);
+        }
+        return orderEntity;
     }
 }

@@ -13,7 +13,7 @@ public class OrderEntity {
     private Integer id;
     private Date startDate;
     private Date endDate;
-    private Boolean open;
+    private Boolean open = true;
     private String name;
 
     @ManyToOne
@@ -52,17 +52,10 @@ public class OrderEntity {
     }
 
     public Boolean getOpen() {
-        if (endDate == null){
-            open = true;
-        }
-        open = false;
         return open;
     }
 
     public void setOpen(Boolean open) {
-        if (open){
-            this.endDate = null;
-        }
         this.open = open;
     }
 

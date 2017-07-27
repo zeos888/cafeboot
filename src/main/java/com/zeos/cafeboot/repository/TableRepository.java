@@ -1,6 +1,7 @@
 package com.zeos.cafeboot.repository;
 
 import com.zeos.cafeboot.entity.AreaEntity;
+import com.zeos.cafeboot.entity.OrderEntity;
 import com.zeos.cafeboot.entity.TableEntity;
 import org.springframework.data.repository.CrudRepository;
 

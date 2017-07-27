@@ -29,7 +29,7 @@ public class KitchenController {
     private OrderItemRepository orderItemRepository;
 
     @RequestMapping("/addDishType")
-    public DishTypeEntity addDishType(@RequestParam(name = "name") String name){
+    public DishTypeEntity addDishType(@RequestParam(name = "name") String name) {
         List<DishTypeEntity> found = dishTypeRepository.findByName(name);
         if (found.size() > 0) {
             return null;
@@ -41,9 +41,9 @@ public class KitchenController {
     }
 
     @RequestMapping("/editDishType/{id}")
-    public DishTypeEntity editDishType(@PathVariable(name = "id") Integer id, @RequestParam(name = "name") String name){
+    public DishTypeEntity editDishType(@PathVariable(name = "id") Integer id, @RequestParam(name = "name") String name) {
         DishTypeEntity dishTypeEntity = dishTypeRepository.findOne(id);
-        if (dishTypeEntity != null){
+        if (dishTypeEntity != null) {
             dishTypeEntity.setName(name);
             dishTypeRepository.save(dishTypeEntity);
             return dishTypeEntity;
@@ -52,9 +52,9 @@ public class KitchenController {
     }
 
     @RequestMapping("/removeDishType/{id}")
-    public int removeDishType(@PathVariable(name = "id") Integer id){
+    public int removeDishType(@PathVariable(name = "id") Integer id) {
         DishTypeEntity dishTypeEntity = dishTypeRepository.findOne(id);
-        if (dishTypeEntity != null && dishRepository.findByDishType(dishTypeEntity).size() == 0){
+        if (dishTypeEntity != null && dishRepository.findByDishType(dishTypeEntity).size() == 0) {
             dishTypeRepository.delete(dishTypeEntity);
             return 1;
         }
@@ -62,7 +62,7 @@ public class KitchenController {
     }
 
     @RequestMapping("/addDish")
-    public DishEntity addDish(@RequestParam(name = "name") String name, @RequestParam(name = "dishTypeId") Integer dishTypeId, @RequestParam(name = "price") Double price, @RequestParam(name = "quantity", required = false, defaultValue = "0") Integer quantity){
+    public DishEntity addDish(@RequestParam(name = "name") String name, @RequestParam(name = "dishTypeId") Integer dishTypeId, @RequestParam(name = "price") Double price, @RequestParam(name = "quantity", required = false, defaultValue = "0") Integer quantity) {
         List<DishEntity> found = dishRepository.findByName(name);
         if (found.size() > 0 || dishTypeRepository.findOne(dishTypeId) == null) {
             return null;
@@ -77,13 +77,14 @@ public class KitchenController {
     }
 
     @RequestMapping("/editDish/{id}")
-    public DishEntity editDish(@PathVariable(name = "id") Integer id, @RequestParam(name = "name", required = false) String name, @RequestParam(name = "dishTypeId", required = false) Integer dishTypeId, @RequestParam(name = "price", required = false) Double price, @RequestParam(name = "quantity",required = false) Integer quantity){
+    public DishEntity editDish(@PathVariable(name = "id") Integer id, @RequestParam(name = "name", required = false) String name, @RequestParam(name = "dishTypeId", required = false) Integer dishTypeId, @RequestParam(name = "price", required = false) Double price, @RequestParam(name = "quantity", required = false) Integer quantity) {
         DishEntity dishEntity = dishRepository.findOne(id);
-        if (dishEntity != null){
+        if (dishEntity != null) {
             if (name != null) dishEntity.setName(name);
             if (price != null) dishEntity.setPrice(price);
-            if (dishTypeId != null && dishTypeRepository.findOne(dishTypeId) != null) dishEntity.setDishType(dishTypeRepository.findOne(dishTypeId));
-            if (quantity !=null) dishEntity.setQuantity(quantity);
+            if (dishTypeId != null && dishTypeRepository.findOne(dishTypeId) != null)
+                dishEntity.setDishType(dishTypeRepository.findOne(dishTypeId));
+            if (quantity != null) dishEntity.setQuantity(quantity);
             dishRepository.save(dishEntity);
             return dishEntity;
         }
@@ -91,9 +92,9 @@ public class KitchenController {
     }
 
     @RequestMapping("/removeDish/{id}")
-    public int removeDish(@PathVariable(name = "id") Integer id){
+    public int removeDish(@PathVariable(name = "id") Integer id) {
         DishEntity dishEntity = dishRepository.findOne(id);
-        if (dishEntity != null && !orderItemRepository.existsByDish(dishEntity)){
+        if (dishEntity != null && !orderItemRepository.existsByDish(dishEntity)) {
             dishRepository.delete(dishEntity);
             return 1;
         }

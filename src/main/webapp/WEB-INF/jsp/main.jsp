@@ -11,34 +11,31 @@
 <body onload="run()">
 
 <div class="row">
-    <button class="btn btn-primary col-md-3" type="button" data-toggle="collapse" data-target="#cafe" aria-expanded="false" aria-controls="cafe">
+    <button class="btn btn-primary col-md-3" type="button" data-toggle="collapse" data-target="#cafe" aria-expanded="false" aria-controls="cafe" id="toggleCafe" onclick="toggleCafe('hide')">
         Show cafe
     </button></div>
 <div class="row collapse" id="cafe">
-    <div class="col-md-3">
-        <p onload="showArea()" id="areaListCafe">
+    <div class="col-md-3" id="cafeAreaList">
 
-        </p>
     </div>
-    <div class="col-md-2">
-        <p id="tableListCafe">
+    <div class="col-md-3" id="cafeAreaDetails">
 
-        </p>
     </div>
-    <div class="col-md-3">
-        <p id="orderList">
+    <div class="col-md-3" id="cafeTableDetails">
 
-        </p>
     </div>
     <div class="col-md-3">
-        <p id="orderDetails">
+        <div class="row" id="cafeOrderDetails">
 
-        </p>
+        </div>
+        <div class="row" id="cafeOrderMenu">
+
+        </div>
     </div>
 </div>
 
 <div class="row">
-    <button class="btn btn-primary col-md-3" type="button" data-toggle="collapse" data-target="#manage" aria-expanded="false" aria-controls="manage">
+    <button class="btn btn-primary col-md-3" type="button" data-toggle="collapse" data-target="#manage" aria-expanded="false" aria-controls="manage" id="toggleManagement" onclick="toggleManagement('hide')">
         Show management
     </button>
 </div>
@@ -72,12 +69,32 @@
 </div>
 
 <div class="row">
-    <button class="btn btn-primary col-md-3" type="button" data-toggle="collapse" data-target="#kitchen" aria-expanded="false" aria-controls="kitchen">
+    <button class="btn btn-primary col-md-3" type="button" data-toggle="collapse" data-target="#kitchen" aria-expanded="false" aria-controls="kitchen" id="toggleKitchen" onclick="toggleKitchen('hide')">
         Show kitchen
     </button>
 </div>
 <div class="row collapse" id="kitchen">
+    <div class="col-md-3">
+        <div class="list-group" id="dishTypeList">
 
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="row" id="dishTypeDetails">
+
+        </div>
+        <div class="row" id="dishTypeButtons">
+
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="row" id="dishDetails">
+
+        </div>
+        <div class="row" id="dishButtons">
+
+        </div>
+    </div>
 </div>
 
 </body>

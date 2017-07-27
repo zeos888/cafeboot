@@ -11,5 +11,6 @@ import java.util.List;
  */
 public interface OrderRepository extends CrudRepository<OrderEntity, Integer> {
     List<OrderEntity> findByTable(TableEntity tableEntity);
-    List<OrderEntity> findByTableAndOpen(TableEntity tableEntity, Boolean open);
+    List<OrderEntity> findByTableAndOpenEquals(TableEntity tableEntity, Boolean open);
+    List<OrderEntity> findByTableAndEndDateIsNull(TableEntity tableEntity);
 }
